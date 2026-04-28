@@ -1,6 +1,7 @@
 import maxmind from 'maxmind';
 
-let geoLookup: maxmind.CityLookup | null = null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let geoLookup: any = null;
 
 export async function initGeoLookup() {
   const dbPath = process.env.GEOLITE2_PATH;
