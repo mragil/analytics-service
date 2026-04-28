@@ -20,6 +20,11 @@ app.route('/', sitesRoute);
 
 app.get('/health', (c) => c.json({ status: 'ok' }));
 
+app.get('/debug/env', (c) => c.json({
+  hasSeedSecret: !!process.env.SEED_SECRET,
+  seedSecretLength: process.env.SEED_SECRET?.length || 0,
+}));
+
 const port = Number(process.env.PORT) || 3001;
 
 await initGeoLookup();
