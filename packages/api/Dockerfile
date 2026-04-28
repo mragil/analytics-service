@@ -4,9 +4,11 @@ COPY package.json pnpm-workspace.yaml pnpm-lock.yaml* ./
 COPY tsconfig.base.json ./
 COPY shared/package.json ./shared/
 COPY packages/api/package.json ./packages/api/
+COPY packages/tracking-script/package.json ./packages/tracking-script/
 RUN corepack enable && pnpm install --frozen-lockfile || pnpm install
 COPY shared ./shared
 COPY packages/api ./packages/api
+COPY packages/tracking-script ./packages/tracking-script
 RUN pnpm --filter @analytics/api build
 RUN pnpm --filter @analytics/tracking-script build
 
