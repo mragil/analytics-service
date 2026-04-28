@@ -1,7 +1,6 @@
 FROM node:22-alpine AS builder
 WORKDIR /app
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml* ./
-COPY tsconfig.base.json ./
 COPY shared/package.json ./shared/
 COPY packages/api/package.json ./packages/api/
 COPY packages/tracking-script/package.json ./packages/tracking-script/

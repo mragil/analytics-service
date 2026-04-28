@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsc",
+    "build": "esbuild src/index.ts --bundle --platform=node --packages=external --outfile=dist/index.js --format=esm",
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "tsx seed.ts"
   },
@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
+    "esbuild": "^0.24.0",
     "tsx": "^4.19.0",
     "typescript": "^5.7.0"
   }
