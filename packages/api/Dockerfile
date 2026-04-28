@@ -14,7 +14,7 @@ RUN pnpm --filter @analytics/tracking-script build
 
 FROM node:22-alpine
 WORKDIR /app
-COPY --from=builder /app/packages/api/dist ./dist
+COPY --from=builder /app/packages/api/dist ./packages/api/dist
 COPY --from=builder /app/packages/tracking-script/dist ./packages/tracking-script/dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/packages/api/node_modules ./packages/api/node_modules
