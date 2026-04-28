@@ -15,6 +15,16 @@ sitesRoute.get('/api/sites', async (c) => {
 });
 
 sitesRoute.post('/api/seed', async (c) => {
+  const seedSecret = c.req.query('secret');
+  if (seedSecret !== process.env.SEED_SECRET) {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
+
+  const count = await db.$count(sites);
+  if (count > 0) {
+    return c.json({ error: 'Already seeded' }, 403);
+  }
+
   const apiKey = randomBytes(32).toString('hex');
   const [site] = await db
     .insert(sites)
