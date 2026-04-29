@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
-import { useSiteStats } from '../lib/hooks';
+import { useSiteStats, useSites } from '../lib/hooks';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 export const Route = createFileRoute('/sites/$id')({
@@ -18,6 +18,8 @@ function SiteDetailPage() {
   const [tab, setTab] = useState('pages');
 
   const { data, isLoading } = useSiteStats(id, from, to);
+  const { data: sites } = useSites();
+  const site = sites?.find((s) => s.id === id);
 
   if (isLoading) {
     return <div className="text-center py-12 text-gray-500">Loading...</div>;
@@ -35,7 +37,19 @@ function SiteDetailPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Site Details</h1>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">{site?.name || 'Site Details'}</h1>
+          {site?.domain && (
+            <a
+              href={`https://${site.domain}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-blue-600 hover:underline"
+            >
+              {site.domain}
+            </a>
+          )}
+        </div>
         <div className="flex gap-2">
           <input
             type="date"
