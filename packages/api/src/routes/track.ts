@@ -52,7 +52,7 @@ track.post('/track', async (c) => {
 });
 
 track.get('/track.js', async (c) => {
-  const scriptPath = path.resolve(__dirname, '../../../tracking-script/dist/tracker.iife.js');
+  const scriptPath = path.resolve(__dirname, '../../../../tracking-script/dist/tracker.iife.js');
   try {
     const script = fs.readFileSync(scriptPath, 'utf-8');
     c.header('Content-Type', 'application/javascript');
