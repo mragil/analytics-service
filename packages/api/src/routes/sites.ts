@@ -20,31 +20,28 @@ sitesRoute.post('/api/seed', async (c) => {
     return c.json({ error: 'Unauthorized' }, 401);
   }
 
-  const sitesToSeed = [
-    { name: 'My Website', domain: 'example.com' },
-    { name: 'TripJot', domain: 'itinerary-planner' },
-  ];
+  const name = c.req.query('name');
+  const domain = c.req.query('domain');
 
-  const results = [];
-  for (const siteConfig of sitesToSeed) {
-    const apiKey = randomBytes(32).toString('hex');
-    const [site] = await db
-      .insert(sites)
-      .values({
-        name: siteConfig.name,
-        domain: siteConfig.domain,
-        apiKey,
-      })
-      .onConflictDoUpdate({
-        target: sites.domain,
-        set: { apiKey },
-      })
-      .returning();
-
-    results.push({ siteId: site.id, domain: site.domain, apiKey: site.apiKey });
+  if (!name || !domain) {
+    return c.json({ error: 'Missing name or domain query params' }, 400);
   }
 
-  return c.json({ sites: results });
+  const apiKey = randomBytes(32).toString('hex');
+  const [site] = await db
+    .insert(sites)
+    .values({
+      name,
+      domain,
+      apiKey,
+    })
+    .onConflictDoUpdate({
+      target: sites.domain,
+      set: { apiKey },
+    })
+    .returning();
+
+  return c.json({ siteId: site.id, domain: site.domain, apiKey: site.apiKey });
 });
 
 export default sitesRoute;
