@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, Link } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import api from '../lib/api';
 import type { Site } from '@analytics/shared';
@@ -31,6 +31,7 @@ function SitesPage() {
               <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Domain</th>
               <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">API Key</th>
               <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Created</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
@@ -50,6 +51,15 @@ function SitesPage() {
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-600">
                   {new Date(site.createdAt).toLocaleDateString()}
+                </td>
+                <td className="px-6 py-4">
+                  <Link
+                    to="/sites/$id"
+                    params={{ id: site.id }}
+                    className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                  >
+                    View
+                  </Link>
                 </td>
               </tr>
             ))}
