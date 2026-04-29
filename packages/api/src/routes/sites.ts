@@ -8,6 +8,12 @@ import { randomBytes } from 'node:crypto';
 const sitesRoute = new Hono();
 
 sitesRoute.use('/api/sites', authMiddleware);
+sitesRoute.use('/api/me', authMiddleware);
+
+sitesRoute.get('/api/me', async (c) => {
+  const site = c.get('site');
+  return c.json({ id: site.id, name: site.name, domain: site.domain });
+});
 
 sitesRoute.get('/api/sites', async (c) => {
   const allSites = await db.select().from(sites).orderBy(desc(sites.createdAt));

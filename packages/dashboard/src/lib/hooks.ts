@@ -31,3 +31,13 @@ export function useSites() {
     },
   });
 }
+
+export function useMe() {
+  return useQuery<{ id: string; name: string; domain: string }>({
+    queryKey: ['me'],
+    queryFn: async () => {
+      const { data } = await api.get('/me');
+      return data;
+    },
+  });
+}
