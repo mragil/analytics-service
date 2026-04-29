@@ -25,7 +25,7 @@
       language: navigator.language,
     };
 
-    const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify(payload)], { type: 'text/plain;charset=UTF-8' });
 
     if (navigator.sendBeacon) {
       navigator.sendBeacon(`${apiEndpoint}/track`, blob);

@@ -14,7 +14,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const track = new Hono();
 
 track.post('/track', async (c) => {
-  const body = await c.req.json();
+  const text = await c.req.text();
+  const body = JSON.parse(text);
   const { siteId, url, referrer, sessionId, screenSize, language } = body;
 
   if (!siteId || !url || !sessionId) {
