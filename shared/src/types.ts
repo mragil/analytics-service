@@ -43,6 +43,11 @@ export interface OverviewStats {
   avgDuration: number;
   bounceRate: number;
   timeSeries: TimeSeriesPoint[];
+  devices: DeviceStats[];
+  browsers: BrowserStats[];
+  os: OsStats[];
+  languages: { language: string; visits: number }[];
+  screenSizes: { screenSize: string; visits: number }[];
 }
 
 export interface TimeSeriesPoint {

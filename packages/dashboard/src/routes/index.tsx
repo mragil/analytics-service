@@ -49,7 +49,7 @@ function OverviewPage() {
         <KpiCard label="Avg Duration" value={`${data?.avgDuration || 0}s`} />
       </div>
 
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
+      <div className="bg-white rounded-lg border border-gray-200 p-6 mb-8">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Visits Over Time</h2>
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
@@ -64,6 +64,14 @@ function OverviewPage() {
           </ResponsiveContainer>
         </div>
       </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <InfoCard title="Devices" data={data?.devices || []} />
+        <InfoCard title="Browsers" data={data?.browsers || []} />
+        <InfoCard title="Operating Systems" data={data?.os || []} />
+        <InfoCard title="Languages" data={data?.languages || []} valueKey="language" />
+        <InfoCard title="Screen Sizes" data={data?.screenSizes || []} valueKey="screenSize" />
+      </div>
     </div>
   );
 }
@@ -73,6 +81,38 @@ function KpiCard({ label, value }: { label: string; value: string | number }) {
     <div className="bg-white rounded-lg border border-gray-200 p-6">
       <p className="text-sm text-gray-500">{label}</p>
       <p className="text-3xl font-bold text-gray-900 mt-1">{value}</p>
+    </div>
+  );
+}
+
+function InfoCard({ title, data, valueKey = 'device' }: { title: string; data: any[]; valueKey?: string }) {
+  const total = data.reduce((sum, item) => sum + item.visits, 0);
+
+  return (
+    <div className="bg-white rounded-lg border border-gray-200 p-6">
+      <h3 className="text-sm font-semibold text-gray-900 mb-4">{title}</h3>
+      <div className="space-y-3">
+        {data.slice(0, 6).map((item, i) => {
+          const pct = total > 0 ? ((item.visits / total) * 100).toFixed(1) : '0';
+          return (
+            <div key={i}>
+              <div className="flex items-center justify-between text-sm mb-1">
+                <span className="text-gray-700 truncate">{item[valueKey]}</span>
+                <span className="text-gray-500 ml-2">{item.visits}</span>
+              </div>
+              <div className="w-full bg-gray-100 rounded-full h-1.5">
+                <div
+                  className="bg-blue-500 h-1.5 rounded-full"
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+            </div>
+          );
+        })}
+        {data.length === 0 && (
+          <p className="text-sm text-gray-400">No data yet</p>
+        )}
+      </div>
     </div>
   );
 }
