@@ -12,6 +12,10 @@ async function seed() {
       domain: 'example.com',
       apiKey,
     })
+    .onConflictDoUpdate({
+      target: sites.domain,
+      set: { apiKey },
+    })
     .returning();
 
   console.log('Seed completed!');

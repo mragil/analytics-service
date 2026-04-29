@@ -6,7 +6,7 @@ import { authMiddleware } from '../middleware/auth';
 
 const stats = new Hono();
 
-stats.use('/*', authMiddleware);
+stats.use('/api/stats/*', authMiddleware);
 
 stats.get('/api/stats', async (c) => {
   const { from, to } = c.req.query();
