@@ -20,22 +20,31 @@ sitesRoute.post('/api/seed', async (c) => {
     return c.json({ error: 'Unauthorized' }, 401);
   }
 
-  const count = await db.$count(sites);
-  if (count > 0) {
-    return c.json({ error: 'Already seeded' }, 403);
+  const sitesToSeed = [
+    { name: 'My Website', domain: 'example.com' },
+    { name: 'TripJot', domain: 'itinerary-planner' },
+  ];
+
+  const results = [];
+  for (const siteConfig of sitesToSeed) {
+    const apiKey = randomBytes(32).toString('hex');
+    const [site] = await db
+      .insert(sites)
+      .values({
+        name: siteConfig.name,
+        domain: siteConfig.domain,
+        apiKey,
+      })
+      .onConflictDoUpdate({
+        target: sites.domain,
+        set: { apiKey },
+      })
+      .returning();
+
+    results.push({ siteId: site.id, domain: site.domain, apiKey: site.apiKey });
   }
 
-  const apiKey = randomBytes(32).toString('hex');
-  const [site] = await db
-    .insert(sites)
-    .values({
-      name: 'My Website',
-      domain: 'example.com',
-      apiKey,
-    })
-    .returning();
-
-  return c.json({ siteId: site.id, apiKey });
+  return c.json({ sites: results });
 });
 
 export default sitesRoute;
