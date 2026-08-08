@@ -1,9 +1,10 @@
 import { createMiddleware } from 'hono/factory';
-import { db } from '../db';
 import { sites } from '../db/schema';
 import { eq } from 'drizzle-orm';
+import type { Bindings, Variables } from '../types';
 
-export const authMiddleware = createMiddleware(async (c, next) => {
+export const authMiddleware = createMiddleware<{ Bindings: Bindings; Variables: Variables }>(async (c, next) => {
+  const db = c.get('db');
   const authHeader = c.req.header('Authorization');
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return c.json({ error: 'Unauthorized' }, 401);

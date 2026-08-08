@@ -1,19 +1,15 @@
 import { Hono } from 'hono';
-import { db } from '../db';
 import { pageviews, sites } from '../db/schema';
 import { hashIP } from '../lib/hash';
 import { parseUserAgent } from '../lib/ua';
 import { lookupGeo } from '../lib/geo';
 import { eq } from 'drizzle-orm';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import type { Bindings, Variables } from '../types';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-const track = new Hono();
+const track = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 
 track.post('/track', async (c) => {
+  const db = c.get('db');
   const text = await c.req.text();
   const body = JSON.parse(text);
   const { siteId, url, referrer, sessionId, screenSize, language } = body;
@@ -28,11 +24,11 @@ track.post('/track', async (c) => {
     return c.json({ error: 'Site not found' }, 404);
   }
 
-  const ip = c.req.header('x-forwarded-for') || c.req.header('x-real-ip') || c.req.header('x-client-ip') || '';
-  const ipHash = hashIP(ip);
+  const ip = c.req.header('cf-connecting-ip') || c.req.header('x-forwarded-for')?.split(',')[0]?.trim() || '';
+  const ipHash = await hashIP(ip);
   const ua = c.req.header('user-agent') || '';
   const { device, browser, os } = parseUserAgent(ua);
-  const { country, city } = lookupGeo(ip);
+  const { country, city } = lookupGeo(c);
 
   await db.insert(pageviews).values({
     siteId,
@@ -50,17 +46,6 @@ track.post('/track', async (c) => {
   });
 
   return c.json({ success: true });
-});
-
-track.get('/track.js', async (c) => {
-  const scriptPath = path.resolve(__dirname, '../../tracking-script/dist/tracker.iife.js');
-  try {
-    const script = fs.readFileSync(scriptPath, 'utf-8');
-    c.header('Content-Type', 'application/javascript');
-    return c.body(script);
-  } catch {
-    return c.json({ error: 'Tracking script not built' }, 500);
-  }
 });
 
 export default track;

@@ -1,16 +1,16 @@
-import { pgTable, uuid, text, timestamp } from 'drizzle-orm/pg-core';
+import { sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
-export const sites = pgTable('sites', {
-  id: uuid('id').defaultRandom().primaryKey(),
+export const sites = sqliteTable('sites', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   name: text('name').notNull(),
   domain: text('domain').notNull().unique(),
   apiKey: text('api_key').notNull().unique(),
-  createdAt: timestamp('created_at').defaultNow(),
+  createdAt: text('created_at').$defaultFn(() => new Date().toISOString()),
 });
 
-export const pageviews = pgTable('pageviews', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  siteId: uuid('site_id').references(() => sites.id).notNull(),
+export const pageviews = sqliteTable('pageviews', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  siteId: text('site_id').references(() => sites.id).notNull(),
   url: text('url').notNull(),
   referrer: text('referrer'),
   sessionId: text('session_id').notNull(),
@@ -22,5 +22,5 @@ export const pageviews = pgTable('pageviews', {
   os: text('os'),
   screenSize: text('screen_size'),
   language: text('language'),
-  createdAt: timestamp('created_at').defaultNow(),
+  createdAt: text('created_at').$defaultFn(() => new Date().toISOString()),
 });

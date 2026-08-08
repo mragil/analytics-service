@@ -1,7 +1,8 @@
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
+import { drizzle } from 'drizzle-orm/d1';
 import * as schema from './schema';
 
-const client = postgres(process.env.DATABASE_URL || 'postgresql://analytics:analytics@localhost:5432/analytics');
+export type AnalyticsDB = ReturnType<typeof createDb>;
 
-export const db = drizzle(client, { schema });
+export function createDb(binding: D1Database) {
+  return drizzle(binding, { schema });
+}

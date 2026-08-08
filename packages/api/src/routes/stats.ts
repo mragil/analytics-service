@@ -1,19 +1,20 @@
 import { Hono } from 'hono';
-import { db } from '../db';
 import { pageviews } from '../db/schema';
 import { eq, sql, gte, lte, desc, count, countDistinct } from 'drizzle-orm';
 import { authMiddleware } from '../middleware/auth';
+import type { Bindings, Variables } from '../types';
 
-const stats = new Hono();
+const stats = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 
 stats.use('/api/stats/*', authMiddleware);
 
 stats.get('/api/stats', async (c) => {
+  const db = c.get('db');
   const { from, to } = c.req.query();
 
   const baseWhere: any[] = [];
   if (from && to) {
-    baseWhere.push(gte(pageviews.createdAt, new Date(from)), lte(pageviews.createdAt, new Date(to)));
+    baseWhere.push(gte(pageviews.createdAt, from + 'T00:00:00.000Z'), lte(pageviews.createdAt, to + 'T23:59:59.999Z'));
   }
 
   const totalVisits = await db
@@ -96,12 +97,13 @@ stats.get('/api/stats', async (c) => {
 });
 
 stats.get('/api/stats/:siteId', async (c) => {
+  const db = c.get('db');
   const siteId = c.req.param('siteId');
   const { from, to } = c.req.query();
 
   const baseWhere = [eq(pageviews.siteId, siteId)];
   if (from && to) {
-    baseWhere.push(gte(pageviews.createdAt, new Date(from)), lte(pageviews.createdAt, new Date(to)));
+    baseWhere.push(gte(pageviews.createdAt, from + 'T00:00:00.000Z'), lte(pageviews.createdAt, to + 'T23:59:59.999Z'));
   }
 
   const topPages = await db

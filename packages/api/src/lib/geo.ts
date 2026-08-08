@@ -1,24 +1,12 @@
-import maxmind, { Reader, CityResponse } from 'maxmind';
+import type { Context } from 'hono';
 
-let geoLookup: Reader<CityResponse> | null = null;
-
-export async function initGeoLookup() {
-  const dbPath = process.env.GEOLITE2_PATH;
-  if (!dbPath) return null;
-  try {
-    geoLookup = await maxmind.open(dbPath);
-  } catch {
-    console.warn('GeoLite2 DB not found, geo lookups disabled');
-  }
-  return geoLookup;
-}
-
-export function lookupGeo(ip: string) {
-  if (!geoLookup) return { country: null, city: null };
-  const result = geoLookup.get(ip);
-  if (!result) return { country: null, city: null };
+export function lookupGeo(c: Context) {
+  const cf = (c.req.raw as any).cf as
+    | { country?: string; city?: string }
+    | undefined;
+  if (!cf || !cf.country) return { country: null, city: null };
   return {
-    country: result.country?.names?.en || null,
-    city: result.city?.names?.en || null,
+    country: cf.country || null,
+    city: cf.city || null,
   };
 }

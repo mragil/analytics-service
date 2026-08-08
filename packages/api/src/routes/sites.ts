@@ -1,11 +1,10 @@
 import { Hono } from 'hono';
-import { db } from '../db';
 import { sites } from '../db/schema';
 import { authMiddleware } from '../middleware/auth';
 import { desc } from 'drizzle-orm';
-import { randomBytes } from 'node:crypto';
+import type { Bindings, Variables } from '../types';
 
-const sitesRoute = new Hono();
+const sitesRoute = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 
 sitesRoute.use('/api/sites', authMiddleware);
 sitesRoute.use('/api/me', authMiddleware);
@@ -16,13 +15,14 @@ sitesRoute.get('/api/me', async (c) => {
 });
 
 sitesRoute.get('/api/sites', async (c) => {
+  const db = c.get('db');
   const allSites = await db.select().from(sites).orderBy(desc(sites.createdAt));
   return c.json(allSites);
 });
 
 sitesRoute.post('/api/seed', async (c) => {
   const seedSecret = c.req.query('secret');
-  if (seedSecret !== process.env.SEED_SECRET) {
+  if (seedSecret !== c.env.SEED_SECRET) {
     return c.json({ error: 'Unauthorized' }, 401);
   }
 
@@ -33,7 +33,11 @@ sitesRoute.post('/api/seed', async (c) => {
     return c.json({ error: 'Missing name or domain query params' }, 400);
   }
 
-  const apiKey = randomBytes(32).toString('hex');
+  const db = c.get('db');
+  const apiKey = Array.from(crypto.getRandomValues(new Uint8Array(32)))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+
   const [site] = await db
     .insert(sites)
     .values({
